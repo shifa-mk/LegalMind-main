@@ -23,7 +23,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors({origin: ["http://localhost:3000", "http://192.168.0.117:3000"], credentials: true }));
+app.use(cors({origin: ["https://legalmind-frontend.onrender.com"], credentials: true }));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
