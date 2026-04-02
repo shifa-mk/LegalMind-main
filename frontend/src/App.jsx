@@ -21,24 +21,27 @@ import axios from "axios";
 function App() {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+useEffect(() => {
+  const loadUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-      try {
-        const res = await axios.get("/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.data.success) {
-          dispatch(setUser(res.data.user)); // This fills the "N/A" fields with real data
-        }
-      } catch (err) {
-        localStorage.removeItem("token"); // Token expired or invalid
+    try {
+      // Use the full Render backend URL here
+      const res = await axios.get("https://legalmind-backend-83kj.onrender.com/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data.success) {
+        dispatch(setUser(res.data.user));
       }
-    };
-    loadUser();
-  }, [dispatch]);
+    } catch (err) {
+      console.error("Profile load failed:", err);
+      // Optional: localStorage.removeItem("token");
+    }
+  };
+  loadUser();
+}, [dispatch]);
 
 
   return (
