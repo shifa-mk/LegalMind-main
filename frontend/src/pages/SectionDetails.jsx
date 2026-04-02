@@ -28,11 +28,6 @@ export default function SectionDetails() {
   
   if (!section) return <p className="p-6 text-center text-gray-500 font-medium">Section not found.</p>;
 
-  // Mapping fields to match your Ask AI screenshot exactly
-  const sName = section.sectionName || section.title || "";
-  const sNumber = section.sectionNumber || section.section || "";
-  const sLaw = section.lawType || "IPC";
-
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {/* Back Button */}
@@ -43,38 +38,31 @@ export default function SectionDetails() {
         ← Back
       </button>
 
-      {/* Main Card - Matching image_601d0f.png exactly */}
-      <div className="p-8 bg-white border border-gray-200 rounded-xl shadow-sm space-y-4">
+      {/* Main Container - Exact mapping of your provided code structure */}
+      <div className="p-6 bg-white border rounded-xl shadow-sm">
         
-        {/* Title Header */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">
-            Section {sNumber} — {sLaw}
-          </h2>
-          {/* Confidence Score Placeholder (Matches Ask AI UI) */}
-          <p className="text-green-600 text-sm font-medium">Confidence: 100%</p>
-        </div>
+        <h2 className="text-xl font-bold text-gray-800 mb-1">
+          Section {section.sectionNumber} — {section.lawType || "IPC"}
+        </h2>
 
-        {/* Section Name / Subtitle */}
-        <p className="text-gray-700 italic font-medium">{sName}</p>
-
-        {/* Description */}
-        <p className="text-gray-600 leading-relaxed">
-          {section.description}
+        {/* 📊 Confidence Score (Static for details page to match Ask AI UI) */}
+        <p className="text-sm text-green-600 mb-2">
+          Confidence: 100.00%
         </p>
 
-        {/* Punishment */}
+        <p className="text-gray-700 mb-3 italic">{section.sectionName}</p>
+        <p className="text-gray-600 mb-4">{section.description}</p>
+
         {section.punishment && (
-          <p className="text-gray-800">
-            <span className="font-bold">Punishment:</span> {section.punishment}
+          <p className="mb-2 text-gray-800">
+            <span className="font-semibold">Punishment:</span> {section.punishment}
           </p>
         )}
 
-        {/* Investigation Steps */}
         {section.investigationSteps?.length > 0 && (
-          <div className="pt-2">
-            <h3 className="font-bold text-gray-900 mb-2">Investigation Steps:</h3>
-            <ul className="list-disc list-inside space-y-1 text-gray-700">
+          <div className="mb-3">
+            <h3 className="font-semibold text-gray-800">Investigation Steps:</h3>
+            <ul className="list-disc list-inside text-gray-700">
               {section.investigationSteps.map((step, i) => (
                 <li key={i}>{step}</li>
               ))}
@@ -82,11 +70,10 @@ export default function SectionDetails() {
           </div>
         )}
 
-        {/* Required Documents */}
         {section.requiredDocuments?.length > 0 && (
-          <div className="pt-2">
-            <h3 className="font-bold text-gray-900 mb-2">Required Documents:</h3>
-            <ul className="list-disc list-inside space-y-1 text-gray-700">
+          <div className="mb-3">
+            <h3 className="font-semibold text-gray-800">Required Documents:</h3>
+            <ul className="list-disc list-inside text-gray-700">
               {section.requiredDocuments.map((doc, i) => (
                 <li key={i}>{doc}</li>
               ))}
@@ -94,53 +81,47 @@ export default function SectionDetails() {
           </div>
         )}
 
-        {/* Related Sections */}
         {section.relatedSections?.length > 0 && (
-          <div className="pt-2">
-            <h3 className="font-bold text-gray-900 mb-1">Related Sections:</h3>
+          <div className="mb-3">
+            <h3 className="font-semibold text-gray-800">Related Sections:</h3>
             <p className="text-gray-700">
-              {Array.isArray(section.relatedSections) 
-                ? section.relatedSections.join(", ") 
-                : section.relatedSections}
+                {Array.isArray(section.relatedSections) 
+                    ? section.relatedSections.join(", ") 
+                    : section.relatedSections}
             </p>
           </div>
         )}
 
-        {/* Reference Link */}
         {section.referenceLink && (
-          <div className="pt-4">
+          <div className="mb-3">
             <a
               href={section.referenceLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline flex items-center gap-1 font-medium"
+              className="text-blue-600 underline flex items-center gap-1"
             >
-              <span role="img" aria-label="book">📘</span> View Reference
+              📘 View Reference
             </a>
           </div>
         )}
 
-        {/* Notes for Police */}
         {section.notesForPolice && (
-          <div className="pt-2">
-            <h3 className="font-bold text-gray-900 mb-1">Notes for Police:</h3>
+          <div className="mt-3">
+            <h3 className="font-semibold text-gray-800">Notes for Police:</h3>
             <p className="text-gray-700">{section.notesForPolice}</p>
           </div>
         )}
 
-        {/* Important Cases */}
         {section.importantCases?.length > 0 && (
-          <div className="pt-4 border-t border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-3">Important Cases:</h3>
-            <div className="space-y-4">
-              {section.importantCases.map((c, i) => (
-                <div key={i} className="p-4 bg-gray-50 border border-gray-100 rounded-lg">
-                  <p className="font-bold text-gray-900">{c.caseName || c.title}</p>
-                  <p className="text-xs text-gray-500 mb-1">{c.citation}</p>
-                  <p className="text-sm text-gray-700">{c.summary}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-3 border-t pt-4">
+            <h3 className="font-semibold text-gray-800">Important Cases:</h3>
+            {section.importantCases.map((c, i) => (
+              <div key={i} className="p-3 border rounded bg-gray-50 mt-2">
+                <p className="font-semibold text-gray-900">{c.caseName || c.title}</p>
+                <p className="text-xs text-gray-600">{c.citation}</p>
+                <p className="text-gray-700 text-sm mt-1">{c.summary}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>
