@@ -54,15 +54,18 @@ export default function Navbar() {
         
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold flex items-center gap-2 hover:opacity-90">
-          ⚖️ <span className="tracking-tight">LegalMind</span>
+          ⚖️ <span className="tracking-tight text-white">LegalMind</span>
         </Link>
 
-        {/* Navigation Links - Show if user data is present */}
-        {user && user.fullname && (
+        {/* FIX: Use 'token' as the primary check for NavLinks. 
+            This ensures links show up immediately even if 'user' object 
+            takes a second to load from Redux/Localstorage.
+        */}
+        {token && (
           <ul className="hidden md:flex font-medium items-center gap-6">
             {navLinks.map(({ to, label, icon: Icon }) => (
               <li key={to}>
-                <Link to={to} className="flex items-center gap-2 hover:text-amber-400 transition-colors">
+                <Link to={to} className="flex items-center gap-2 text-white hover:text-amber-400 transition-colors">
                   {Icon && <Icon className="w-4 h-4" />} {label}
                 </Link>
               </li>
@@ -71,11 +74,10 @@ export default function Navbar() {
         )}
 
         <div className="flex items-center gap-4">
-          {/* CRITICAL LOGIC FIX: 
-            Only show Login/Signup if we have NEITHER a token NOR a user.
-            This prevents the "swapped logic" look in image_a585c0.png.
+          {/* Only show Login/Signup if NO token is present.
+              If token exists, we show the Profile/Avatar section.
           */}
-          {!token && !user ? (
+          {!token ? (
             <div className="flex items-center gap-3">
               <Link to="/">
                 <Button variant="outline" className="text-white border-white hover:bg-white hover:text-blue-900">
@@ -117,7 +119,6 @@ export default function Navbar() {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-amber-500 text-white font-bold">
-                          {/* Fallback to first initial if no image exists */}
                           {user?.fullname?.charAt(0).toUpperCase() || "U"}
                         </div>
                       )}
@@ -128,7 +129,7 @@ export default function Navbar() {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                     
+                      <p className="text-sm font-medium leading-none text-black">{user?.fullname || "Officer"}</p>
                       <p className="text-xs leading-none text-muted-foreground">{user?.username}</p>
                     </div>
                   </DropdownMenuLabel>
