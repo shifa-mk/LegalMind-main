@@ -77,76 +77,91 @@ export default function Navbar() {
           {/* Only show Login/Signup if NO token is present.
               If token exists, we show the Profile/Avatar section.
           */}
-          {!token ? (
-            <div className="flex items-center gap-3">
-              <Link to="/">
-                <Button variant="outline" className="text-white border-white hover:bg-white hover:text-blue-900">
-                  Login
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button className="bg-red-600 hover:bg-red-700 text-white border-none">
-                  Signup
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="flex items-center gap-4">
-              {/* Notifications */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-blue-800">
-                    <Bell className="h-5 w-5" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64">
-                  <h4 className="font-medium border-b pb-2 mb-2 text-black">Notifications</h4>
-                  <p className="text-sm text-muted-foreground text-center py-4">No new activity</p>
-                </PopoverContent>
-              </Popover>
+ {/* Navigation Links: Only visible if a token exists */}
+{token && (
+  <ul className="hidden md:flex font-medium items-center gap-6">
+    {navLinks.map(({ to, label, icon: Icon }) => (
+      <li key={to}>
+        <Link to={to} className="flex items-center gap-2 text-white hover:text-amber-400 transition-colors">
+          {Icon && <Icon className="w-4 h-4" />} {label}
+        </Link>
+      </li>
+    ))}
+  </ul>
+)}
 
-              {/* Profile Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-amber-400/30">
-                    <Avatar className="h-10 w-10">
-                      {user?.profile?.avatar ? (
-                        <AvatarImage
-                          src={user.profile.avatar.startsWith("http") 
-                               ? user.profile.avatar 
-                               : getCloudinaryUrl(user.profile.avatar)}
-                          alt={user.fullname || "User"}
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-amber-500 text-white font-bold">
-                          {user?.fullname?.charAt(0).toUpperCase() || "U"}
-                        </div>
-                      )}
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none text-black">{user?.fullname || "Officer"}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user?.username}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/profile" className="flex w-full items-center">
-                      <User2 className="mr-2 h-4 w-4" /> Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={logoutHandler}>
-                    <LogOut className="mr-2 h-4 w-4" /> Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+<div className="flex items-center gap-4">
+  {/* Auth Buttons: Visible ONLY when NOT logged in (no token) */}
+  {!token ? (
+    <div className="flex items-center gap-3">
+      <Link to="/">
+        <Button variant="outline" className="text-white border-white hover:bg-white hover:text-blue-900">
+          Login
+        </Button>
+      </Link>
+      <Link to="/signup">
+        <Button className="bg-red-600 hover:bg-red-700 text-white border-none">
+          Signup
+        </Button>
+      </Link>
+    </div>
+  ) : (
+    /* Profile & Notifications: Visible ONLY when logged in (token exists) */
+    <div className="flex items-center gap-4">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className="text-white hover:bg-blue-800">
+            <Bell className="h-5 w-5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64">
+          <h4 className="font-medium border-b pb-2 mb-2 text-black">Notifications</h4>
+          <p className="text-sm text-muted-foreground text-center py-4">No new activity</p>
+        </PopoverContent>
+      </Popover>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-amber-400/30">
+            <Avatar className="h-10 w-10">
+              {user?.profile?.avatar ? (
+                <AvatarImage
+                  src={user.profile.avatar.startsWith("http") 
+                       ? user.profile.avatar 
+                       : getCloudinaryUrl(user.profile.avatar)}
+                  alt={user.fullname || "User"}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-amber-500 text-white font-bold">
+                  {user?.fullname?.charAt(0).toUpperCase() || "U"}
+                </div>
+              )}
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        
+        <DropdownMenuContent className="w-56" align="end">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none text-black">{user?.fullname || "User"}</p>
+              <p className="text-xs leading-none text-muted-foreground">{user?.username}</p>
             </div>
-          )}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <Link to="/profile" className="flex w-full items-center">
+              <User2 className="mr-2 h-4 w-4" /> Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={logoutHandler}>
+            <LogOut className="mr-2 h-4 w-4" /> Log out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )}
+</div>
         </div>
       </div>
     </div>
