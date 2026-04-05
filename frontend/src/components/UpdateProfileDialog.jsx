@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUser } from "../redux/auth.slice"; 
@@ -12,7 +12,9 @@ import {
 } from "./ui/dialog";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { USER_API_END_POINT } from "../utils/constant";
+
+// Use your existing constant
+const USER_API_END_POINT = "/api/auth"; 
 
 export default function UpdateProfileDialog({ open, setOpen }) {
   const { user, token } = useSelector((store) => store.auth);
@@ -20,7 +22,6 @@ export default function UpdateProfileDialog({ open, setOpen }) {
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   
-  // Initialize state with existing user data
   const [formData, setFormData] = useState({
     fullname: user?.fullname || "", 
     phoneNumber: user?.phoneNumber || "",
@@ -32,50 +33,18 @@ export default function UpdateProfileDialog({ open, setOpen }) {
     yearsOfService: user?.profile?.yearsOfService || "",
   });
 
-  // Sync state if user object updates
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        fullname: user.fullname || "",
-        phoneNumber: user.phoneNumber || "",
-        rank: user.profile?.rank || "",
-        badgeNumber: user.profile?.badgeNumber || "",
-        department: user.profile?.department || "",
-        station: user.profile?.station || "",
-        region: user.profile?.region || "",
-        yearsOfService: user.profile?.yearsOfService || "",
-      });
-    }
-  }, [user]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files?.[0]);
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleFileChange = (e) => setFile(e.target.files?.[0]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    const data = new FormData();
-    data.append("fullname", formData.fullname);
-    data.append("phoneNumber", formData.phoneNumber);
-    data.append("rank", formData.rank);
-    data.append("badgeNumber", formData.badgeNumber);
-    data.append("department", formData.department);
-    data.append("station", formData.station);
-    data.append("region", formData.region);
-    data.append("yearsOfService", formData.yearsOfService);
+    setLoading(true); // Prevent double-clicking
     
-    if (file) {
-      data.append("file", file);
-    }
+    const data = new FormData();
+    Object.keys(formData).forEach(key => data.append(key, formData[key]));
+    if (file) data.append("file", file);
 
     try {
-      // Note: Ensure USER_API_END_POINT is "/api/auth" or similar
       const res = await axios.put(`${USER_API_END_POINT}/update-profile`, data, {
         headers: { 
           "Content-Type": "multipart/form-data",
@@ -86,12 +55,12 @@ export default function UpdateProfileDialog({ open, setOpen }) {
 
       if (res.data.success) {
         dispatch(setUser(res.data.user));
-        toast.success(res.data.message || "Profile updated!");
         setOpen(false);
+        toast.success("Profile updated!");
       }
     } catch (error) {
-      console.error("Update Error Details:", error.response?.data);
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      console.error("Update Error:", error.response?.data);
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -99,80 +68,36 @@ export default function UpdateProfileDialog({ open, setOpen }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[450px] bg-white" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[450px] bg-white">
         <DialogHeader>
           <DialogTitle>Update Police Profile</DialogTitle>
+          {/* CRITICAL: Adding this fixes the console error blocking your click */}
           <DialogDescription>
-            Modify your official credentials. Click save to apply changes.
+            Enter your updated credentials below.
           </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Full Name</label>
-              <input 
-                name="fullname" 
-                value={formData.fullname} 
-                onChange={handleChange} 
-                className="w-full border p-2 rounded text-black text-sm" 
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Phone Number</label>
-              <input 
-                name="phoneNumber" 
-                value={formData.phoneNumber} 
-                onChange={handleChange} 
-                className="w-full border p-2 rounded text-black text-sm" 
-              />
-            </div>
+            <input name="fullname" value={formData.fullname} onChange={handleChange} placeholder="Full Name" className="border p-2 rounded text-black" />
+            <input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone" className="border p-2 rounded text-black" />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Rank</label>
-              <input name="rank" value={formData.rank} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Badge Number</label>
-              <input name="badgeNumber" value={formData.badgeNumber} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
+            <input name="rank" value={formData.rank} onChange={handleChange} placeholder="Rank" className="border p-2 rounded text-black" />
+            <input name="badgeNumber" value={formData.badgeNumber} onChange={handleChange} placeholder="Badge" className="border p-2 rounded text-black" />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Department</label>
-              <input name="department" value={formData.department} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Station</label>
-              <input name="station" value={formData.station} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
+            <input name="department" value={formData.department} onChange={handleChange} placeholder="Department" className="border p-2 rounded text-black" />
+            <input name="station" value={formData.station} onChange={handleChange} placeholder="Station" className="border p-2 rounded text-black" />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Region</label>
-              <input name="region" value={formData.region} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-black">Experience (Years)</label>
-              <input name="yearsOfService" value={formData.yearsOfService} onChange={handleChange} className="w-full border p-2 rounded text-black text-sm" />
-            </div>
+            <input name="region" value={formData.region} onChange={handleChange} placeholder="Region" className="border p-2 rounded text-black" />
+            <input name="yearsOfService" value={formData.yearsOfService} onChange={handleChange} placeholder="Years" className="border p-2 rounded text-black" />
           </div>
-
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-black">Profile Picture</label>
-            <input type="file" accept="image/*" onChange={handleFileChange} className="w-full border p-1 text-sm rounded cursor-pointer" />
-          </div>
-
-          <Button 
-            type="submit" 
-            disabled={loading} 
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white mt-4"
-          >
-            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating...</> : "Save Changes"}
+          <input type="file" accept="image/*" onChange={handleFileChange} className="border p-1 text-sm rounded" />
+          
+          <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            {loading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : "Save Changes"}
           </Button>
         </form>
       </DialogContent>
