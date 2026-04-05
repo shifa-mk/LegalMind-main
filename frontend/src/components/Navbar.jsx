@@ -25,6 +25,9 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Check if user is fully authenticated
+  const isAuthenticated = token && user;
+
   const logoutHandler = async () => {
     try {
       await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
@@ -56,9 +59,9 @@ export default function Navbar() {
           ⚖️ <span className="tracking-tight">LegalMind</span>
         </Link>
 
-        {/* 2. Middle Navigation (Centered - Only visible if logged in) */}
+        {/* 2. Middle Navigation (Centered - Only visible if fully authenticated) */}
         <div className="hidden md:flex flex-1 justify-center">
-          {token && (
+          {isAuthenticated && (
             <ul className="flex font-medium items-center gap-8">
               {navLinks.map(({ to, label, icon: Icon }) => (
                 <li key={to}>
@@ -73,8 +76,8 @@ export default function Navbar() {
 
         {/* 3. Right Side: Auth or Profile */}
         <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
-          {!token ? (
-            /* Logged Out: Show Login/Signup */
+          {!isAuthenticated ? (
+            /* Logged Out View: Show Login and Signup */
             <div className="flex items-center gap-3">
               <Link to="/">
                 <Button variant="outline" className="text-white border-white hover:bg-white hover:text-[#1e3a8a] h-9 px-4">
@@ -88,10 +91,10 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            /* Logged In: Show Mobile Menu + Profile */
+            /* Logged In View: Show Mobile Menu, Notifications, and Profile */
             <div className="flex items-center gap-2 md:gap-4">
               
-              {/* Mobile Navigation Trigger */}
+              {/* Mobile Navigation Dropdown (md:hidden) */}
               <div className="md:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -126,7 +129,7 @@ export default function Navbar() {
                 </PopoverContent>
               </Popover>
 
-              {/* Profile Avatar */}
+              {/* User Profile Avatar and Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-amber-400/30">
