@@ -25,8 +25,8 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Check if user is fully authenticated
-  const isAuthenticated = token && user;
+  // IMPORTANT: Only consider 'authenticated' if BOTH token and user exist
+  const isAuthenticated = !!(token && user);
 
   const logoutHandler = async () => {
     try {
@@ -54,12 +54,14 @@ export default function Navbar() {
     <div className="bg-[#1e3a8a] text-white shadow-sm sticky top-0 z-50">
       <div className="flex items-center justify-between max-w-7xl mx-auto h-16 px-4">
         
-        {/* 1. Logo (Left) */}
-        <Link to="/" className="text-2xl font-bold flex items-center gap-2 hover:opacity-90 flex-shrink-0">
-          ⚖️ <span className="tracking-tight">LegalMind</span>
-        </Link>
+        {/* 1. Logo */}
+        <div className="flex-shrink-0">
+          <Link to="/" className="text-2xl font-bold flex items-center gap-2 hover:opacity-90">
+            ⚖️ <span className="tracking-tight">LegalMind</span>
+          </Link>
+        </div>
 
-        {/* 2. Middle Navigation (Centered - Only visible if fully authenticated) */}
+        {/* 2. Middle Navigation (Hidden if not logged in) */}
         <div className="hidden md:flex flex-1 justify-center">
           {isAuthenticated && (
             <ul className="flex font-medium items-center gap-8">
@@ -74,10 +76,10 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* 3. Right Side: Auth or Profile */}
+        {/* 3. Right Side: Auth Buttons OR Profile */}
         <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
           {!isAuthenticated ? (
-            /* Logged Out View: Show Login and Signup */
+            /* --- LOGGED OUT VIEW: LOGIN & SIGNUP BUTTONS --- */
             <div className="flex items-center gap-3">
               <Link to="/">
                 <Button variant="outline" className="text-white border-white hover:bg-white hover:text-[#1e3a8a] h-9 px-4">
@@ -91,10 +93,10 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            /* Logged In View: Show Mobile Menu, Notifications, and Profile */
+            /* --- LOGGED IN VIEW: BELL & AVATAR --- */
             <div className="flex items-center gap-2 md:gap-4">
               
-              {/* Mobile Navigation Dropdown (md:hidden) */}
+              {/* Mobile Menu (md:hidden) */}
               <div className="md:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -116,7 +118,6 @@ export default function Navbar() {
                 </DropdownMenu>
               </div>
 
-              {/* Notifications */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-white hover:bg-blue-800">
@@ -129,7 +130,6 @@ export default function Navbar() {
                 </PopoverContent>
               </Popover>
 
-              {/* User Profile Avatar and Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-amber-400/30">
