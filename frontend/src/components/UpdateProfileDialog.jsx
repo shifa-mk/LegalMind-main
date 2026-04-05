@@ -44,27 +44,30 @@ export default function UpdateProfileDialog({ open, setOpen }) {
     Object.keys(formData).forEach(key => data.append(key, formData[key]));
     if (file) data.append("file", file);
 
-    try {
-      const res = await axios.put(`${USER_API_END_POINT}/update-profile`, data, {
-        headers: { 
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}` 
-        },
-        withCredentials: true,
-      });
+   try {
+  const res = await axios.put(`${USER_API_END_POINT}/update-profile`, data, {
+    headers: { 
+      "Content-Type": "multipart/form-data",
+      "Authorization": `Bearer ${token}` 
+    },
+    withCredentials: true,
+  });
 
-      if (res.data.success) {
-        dispatch(setUser(res.data.user));
-        setOpen(false);
-        toast.success("Profile updated!");
-      }
-    } catch (error) {
-      console.error("Update Error:", error.response?.data);
-      toast.error(error.response?.data?.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+  console.log("Full Server Response:", res.data); // DEBUG LOG
+
+  if (res.data.success) {
+    dispatch(setUser(res.data.user));
+    setOpen(false);
+    toast.success("Update successful!");
+  } else {
+    // If the server returns success: false, the button will just revert
+    console.error("Server rejected update:", res.data.message);
+    toast.error(res.data.message);
+  }
+} catch (error) {
+  // This will catch the 400/500 errors
+  console.error("Axios Error:", error.response?.data || error.message);
+};
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
