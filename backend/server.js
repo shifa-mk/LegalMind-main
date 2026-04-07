@@ -47,7 +47,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/audit", auditRoutes);
-app.use("/api/crime", crimeRoutes);
+app.use("/api/crime/crime-data", crimeRoutes);
 // ... in your Express/Node.js route file (e.g., api/ai.js)
 
 import { embedQuery, loadEmbedder } from './utils/embedding.js'; // Adjust path as needed
