@@ -165,9 +165,18 @@ return (
     <p>{section.relatedSections.join(", ")}</p>
   </div>
 )}
-{section.referenceLink && (
- <a href={section.referenceLink || section.link}>
-)}
+  {sec.referenceLink && (
+            <div className="mb-3">
+              <a
+                href={sec.referenceLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                📘 View Reference
+              </a>
+            </div>
+          )}
 {/* Important Cases */}
 {section.importantCases?.length > 0 && (
   <div className="mt-3">
