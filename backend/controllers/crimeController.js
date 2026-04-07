@@ -1,5 +1,5 @@
 import fs from "fs";
-
+console.log("🔥 NEW CONTROLLER RUNNING 🔥");
 // ✅ Load JSON
 const crimeData = JSON.parse(
   fs.readFileSync(new URL("../crimeData.json", import.meta.url))
