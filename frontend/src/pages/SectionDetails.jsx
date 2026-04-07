@@ -124,6 +124,20 @@ export default function SectionDetails() {
             ))}
           </div>
         )}
+        {/* 📊 Crime Data */}
+  {crimeData && (
+    <div className="mt-3 p-3 bg-yellow-50 border rounded">
+      <p className="font-semibold">
+        📊 Crime Data ({crimeData.city})
+      </p>
+
+      <ul className="text-sm">
+        <li>2020: {crimeData.cases?.["2020"]}</li>
+        <li>2021: {crimeData.cases?.["2021"]}</li>
+        <li>2022: {crimeData.cases?.["2022"]}</li>
+      </ul>
+    </div>
+  )}
       </div>
     </div>
   );
