@@ -60,7 +60,11 @@ const SectionDetails = () => {
           <option value="Motor Vehicles Act">Motor Vehicles Act</option>
         </select>
       </div>
-
+console.log("SENDING:", {
+  city,
+  section: id,
+  lawType: selectedLawType
+});
       {/* 📊 CRIME DATA */}
       {crimeData && (
         <div
