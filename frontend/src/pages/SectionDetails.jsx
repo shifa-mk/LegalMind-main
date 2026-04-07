@@ -17,7 +17,7 @@ useEffect(() => {
 const fetchDetails = async () => {
 try {
 setLoading(true);
-const res = await api.get("/api/sections/${id}");
+const res = await api.get(`/api/sections/${id}`);
 
     // 🔥 SAFE HANDLING
     setSection(res.data.section || res.data);
