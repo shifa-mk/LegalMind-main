@@ -166,7 +166,7 @@ return (
   </div>
 )}
 {section.referenceLink && (
-  <a href={section.referenceLink}>...</a>
+ <a href={section.referenceLink || section.link}>
 )}
 {/* Important Cases */}
 {section.importantCases?.length > 0 && (
