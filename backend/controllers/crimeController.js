@@ -1,4 +1,4 @@
-import axios from "axios";
+//import axios from "axios";
 
 const cityToState = {
   "mumbai": "Maharashtra",
@@ -7,8 +7,30 @@ const cityToState = {
   "delhi": "Delhi",
   "bangalore": "Karnataka"
 };
-
 export const getCrimeData = async (req, res) => {
+  try {
+    const { city } = req.body;
+
+    if (!city) {
+      return res.status(400).json({ message: "City required" });
+    }
+
+    // TEMP STATIC DATA (to test route)
+    return res.json({
+      city,
+      cases: {
+        "2020": 120,
+        "2021": 150,
+        "2022": 180
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+/*export const getCrimeData = async (req, res) => {
   try {
     const { city } = req.body;
 
