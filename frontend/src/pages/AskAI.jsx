@@ -18,7 +18,42 @@ export default function AskAI() {
     };
     recognition.start();
   };
+const fetchCrime = async (city) => {
+  const res = await api.post("/api/crime/crime-data", { city });
+  setCrimeData(res.data);
+};
+useEffect(() => {
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
 
+      try {
+        const geo = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+
+        const data = await geo.json();
+
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.state;
+
+        console.log("City:", city);
+
+        fetchCrime(city);
+
+      } catch (err) {
+        console.error("Location error:", err);
+      }
+    },
+    (err) => {
+      console.log("GPS denied, using default city");
+      fetchCrime("Mumbai"); // fallback
+    }
+  );
+}, []);
   // 🔍 Ask AI
   const askAI = async () => {
     if (!query.trim()) {
