@@ -1,7 +1,7 @@
 import fs from "fs";
 
 console.log("🔥 NEW CONTROLLER RUNNING 🔥");
-
+console.log("🔥 API HIT");
 // ✅ Load JSON
 const crimeData = JSON.parse(
   fs.readFileSync(new URL("../crimeData.json", import.meta.url))
@@ -89,7 +89,7 @@ export const getCrimeData = async (req, res) => {
       "2021": Math.floor(baseCases["2021"] * factor),
       "2022": Math.floor(baseCases["2022"] * factor)
     };
-
+console.log("BODY RECEIVED:", req.body);
     // 🔥 FINAL DEBUG
     console.log("CITY:", city);
     console.log("SECTION:", section);
