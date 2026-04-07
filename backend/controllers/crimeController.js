@@ -26,30 +26,31 @@ export const getCrimeData = async (req, res) => {
       return res.status(400).json({ message: "City not supported" });
     }
 
-    const records = crimeData.records;
+    // 🔥 FIX: use data array (not records)
+    const rows = crimeData.data;
 
-    const stateRecord = records.find(
-      (item) => item[0].toLowerCase() === state.toLowerCase()
+    const stateRow = rows.find(row =>
+      row[1]?.toLowerCase().includes(state.toLowerCase())
     );
 
-    if (!stateRecord) {
+    if (!stateRow) {
       return res.status(404).json({ message: "No data found" });
     }
 
     const cases = {
-      "2020": stateRecord[1],
-      "2021": stateRecord[2],
-      "2022": stateRecord[3]
+      "2020": stateRow[2],
+      "2021": stateRow[3],
+      "2022": stateRow[4]
     };
 
     return res.json({
-      city,
       state,
+      city,
       cases
     });
 
   } catch (error) {
-    console.error("ERROR:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
