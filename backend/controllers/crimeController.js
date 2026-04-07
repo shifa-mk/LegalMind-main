@@ -1,5 +1,7 @@
 import fs from "fs";
+
 console.log("🔥 NEW CONTROLLER RUNNING 🔥");
+
 // ✅ Load JSON
 const crimeData = JSON.parse(
   fs.readFileSync(new URL("../crimeData.json", import.meta.url))
@@ -17,6 +19,9 @@ const cityToState = {
 export const getCrimeData = async (req, res) => {
   try {
     const { city, section, lawType } = req.body;
+
+    // 🔥 DEBUG FULL BODY
+    console.log("📦 FULL BODY:", req.body);
 
     if (!city) {
       return res.status(400).json({ message: "City required" });
@@ -45,7 +50,7 @@ export const getCrimeData = async (req, res) => {
       "2022": Number(stateRow[4]) || 0
     };
 
-    // 🔥 LAW TYPE WEIGHTS (STRONG DIFFERENCE)
+    // 🔥 LAW TYPE WEIGHTS
     const lawWeights = {
       "ipc": 1,
       "ndps act": 0.5,
@@ -58,18 +63,23 @@ export const getCrimeData = async (req, res) => {
 
     let factor = lawWeights[lawType?.toLowerCase()] || 0.5;
 
-    // 🔥 SECTION FACTOR (STRONG DIFFERENCE)
+    // 🔥 SECTION FACTOR (FIXED PROPERLY)
     let sectionFactor = 1;
 
-    if (section) {
-      const num = parseInt(section);
+    let num = Number(section);
 
-      if (num < 100) sectionFactor = 0.2;
-      else if (num < 200) sectionFactor = 0.4;
-      else if (num < 300) sectionFactor = 0.6;
-      else if (num < 400) sectionFactor = 0.8;
-      else sectionFactor = 1;
+    if (isNaN(num)) {
+      console.log("⚠️ INVALID SECTION RECEIVED:", section);
+      num = 1; // fallback
     }
+
+    console.log("✅ PARSED SECTION:", num);
+
+    if (num < 100) sectionFactor = 0.2;
+    else if (num < 200) sectionFactor = 0.4;
+    else if (num < 300) sectionFactor = 0.6;
+    else if (num < 400) sectionFactor = 0.8;
+    else sectionFactor = 1;
 
     factor *= sectionFactor;
 
@@ -79,8 +89,8 @@ export const getCrimeData = async (req, res) => {
       "2021": Math.floor(baseCases["2021"] * factor),
       "2022": Math.floor(baseCases["2022"] * factor)
     };
-console.log("SECTION RECEIVED:", section);
-    // 🔥 DEBUG
+
+    // 🔥 FINAL DEBUG
     console.log("CITY:", city);
     console.log("SECTION:", section);
     console.log("LAW TYPE:", lawType);
@@ -90,12 +100,12 @@ console.log("SECTION RECEIVED:", section);
       state,
       city,
       lawType,
-      section,
+      section: num, // ✅ cleaned value
       cases
     });
 
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error("❌ ERROR:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
