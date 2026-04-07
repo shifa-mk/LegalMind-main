@@ -36,11 +36,18 @@ if (id) fetchDetails();
 // ✅ GPS + CRIME DATA (SEPARATE - WON’T BREAK UI)
 useEffect(() => {
 const fetchCrime = async (city) => {
-try {
-const res = await api.post("/api/crime/crime-data", { city });
-setCrimeData(res.data);
-} catch (err) {
-console.error("Crime fetch error:", err);
+  try {
+    const res = await api.post("/api/crime/crime-data", { city });
+    setCrimeData(res.data);
+
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      console.log("No crime data available");
+      setCrimeData(null); // or fallback
+    } else {
+      console.error("Crime fetch error:", err);
+    }
+  }
 }
 };
 
