@@ -1,12 +1,12 @@
 //import axios from "axios";
 
-const cityToState = {
+/*const cityToState = {
   "mumbai": "Maharashtra",
   "navi mumbai": "Maharashtra",
   "pune": "Maharashtra",
   "delhi": "Delhi",
   "bangalore": "Karnataka"
-};
+};*/
 export const getCrimeData = async (req, res) => {
   try {
     const { city } = req.body;
