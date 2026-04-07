@@ -2,6 +2,7 @@ import axios from "axios";
 
 const cityToState = {
   "mumbai": "Maharashtra",
+  "navi mumbai": "Maharashtra",
   "pune": "Maharashtra",
   "delhi": "Delhi",
   "bangalore": "Karnataka"
