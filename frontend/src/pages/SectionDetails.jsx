@@ -3,28 +3,48 @@ import { useParams } from "react-router-dom";
 import api from "../api";
 
 const SectionDetails = () => {
-  const { sectionNumber } = useParams(); // ✅ FIXED
+  const { id } = useParams();
 
   const [crimeData, setCrimeData] = useState(null);
   const [selectedLawType, setSelectedLawType] = useState("IPC");
+  const [sections, setSections] = useState([]); // 🔥 STORE ALL SECTIONS
 
+  // ✅ Fetch all sections once
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const res = await api.get("/api/sections"); // adjust if route different
+        setSections(res.data);
+      } catch (err) {
+        console.error("Error fetching sections:", err);
+      }
+    };
+
+    fetchSections();
+  }, []);
+
+  // 🔥 MAIN FETCH FUNCTION
   const fetchCrime = async () => {
     try {
       const city = "Mumbai";
 
-      console.log("SENDING DATA:", {
-        city,
-        section: sectionNumber,
-        lawType: selectedLawType
-      });
+      // ✅ FIND CURRENT SECTION USING ID
+      const currentSection = sections.find((s) => s._id === id);
+
+      if (!currentSection) {
+        console.log("❌ Section not found yet");
+        return;
+      }
+
+      console.log("✅ SECTION NUMBER:", currentSection.sectionNumber);
 
       const res = await api.post("/api/crime/crime-data", {
         city,
-        section: Number(sectionNumber), // ✅ IMPORTANT FIX
+        section: currentSection.sectionNumber, // ✅ FIXED HERE
         lawType: selectedLawType
       });
 
-      console.log("API RESPONSE:", res.data);
+      console.log("🔥 API RESPONSE:", res.data);
 
       setCrimeData(res.data);
     } catch (err) {
@@ -33,9 +53,12 @@ const SectionDetails = () => {
     }
   };
 
+  // 🔥 RUN WHEN ID / LAWTYPE / SECTIONS CHANGE
   useEffect(() => {
-    fetchCrime();
-  }, [sectionNumber, selectedLawType]);
+    if (sections.length > 0) {
+      fetchCrime();
+    }
+  }, [id, selectedLawType, sections]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -44,7 +67,10 @@ const SectionDetails = () => {
       <div style={{ marginBottom: "20px" }}>
         <select
           value={selectedLawType}
-          onChange={(e) => setSelectedLawType(e.target.value)}
+          onChange={(e) => {
+            console.log("SELECTED LAW:", e.target.value);
+            setSelectedLawType(e.target.value);
+          }}
         >
           <option value="IPC">IPC</option>
           <option value="NDPS Act">NDPS Act</option>
