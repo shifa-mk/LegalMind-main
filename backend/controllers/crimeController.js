@@ -54,7 +54,7 @@ export const getCrimeData = async (req, res) => {
       "2021": stateRecord["2021"] || stateRecord.year_2021 || "N/A",
       "2022": stateRecord["2022"] || stateRecord.year_2022 || "N/A"
     };
-
+console.log(records[0]);
     return res.json({
       state,
       city,
