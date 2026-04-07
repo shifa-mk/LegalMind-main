@@ -79,7 +79,7 @@ export const getCrimeData = async (req, res) => {
       "2021": Math.floor(baseCases["2021"] * factor),
       "2022": Math.floor(baseCases["2022"] * factor)
     };
-
+console.log("SECTION RECEIVED:", section);
     // 🔥 DEBUG
     console.log("CITY:", city);
     console.log("SECTION:", section);
