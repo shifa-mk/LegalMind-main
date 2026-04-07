@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// ✅ Map city → state
+// ✅ City → State mapping
 const cityToState = {
   "mumbai": "Maharashtra",
   "navi mumbai": "Maharashtra",
@@ -23,7 +23,7 @@ export const getCrimeData = async (req, res) => {
       return res.status(400).json({ message: "City not supported" });
     }
 
-    // ✅ CALL DATA.GOV API
+    // ✅ Call Data.gov API
     const response = await axios.get(
       "https://api.data.gov.in/resource/15150682-a9ed-475d-b0e3-67b292e90a22",
       {
@@ -37,22 +37,21 @@ export const getCrimeData = async (req, res) => {
 
     const records = response.data.records;
 
-    // ✅ FIND STATE DATA
-    const data = records.find(
+    // ✅ Filter all records for that state
+    const stateData = records.filter(
       (item) =>
-        item.state_ut &&
-        item.state_ut.toLowerCase() === state.toLowerCase()
+        (item["state/ut"] || item.state_ut)?.toLowerCase() === state.toLowerCase()
     );
 
-    if (!data) {
+    if (!stateData.length) {
       return res.status(404).json({ message: "No data found" });
     }
 
-    // ✅ HANDLE DIFFERENT COLUMN NAMES (VERY IMPORTANT)
+    // ✅ Extract year-wise data
     const cases = {
-      "2020": data["2020"] || data.year_2020 || data["2020_total"] || "N/A",
-      "2021": data["2021"] || data.year_2021 || data["2021_total"] || "N/A",
-      "2022": data["2022"] || data.year_2022 || data["2022_total"] || "N/A"
+      "2020": stateData.find(i => i.year === "2020")?.ipc_crimes || "N/A",
+      "2021": stateData.find(i => i.year === "2021")?.ipc_crimes || "N/A",
+      "2022": stateData.find(i => i.year === "2022")?.ipc_crimes || "N/A"
     };
 
     return res.json({
