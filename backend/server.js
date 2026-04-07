@@ -14,6 +14,8 @@ import auditRoutes from "./routes/auditRoutes.js";
 
 // server.js
 import aiRoutes from "./routes/temps.js";
+import crimeRoutes from "./routes/crimeRoutes.js";
+
 
 // Mount it directly to the root or just /api
 
@@ -45,6 +47,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/audit", auditRoutes);
+app.use("/api/crime", crimeRoutes);
 // ... in your Express/Node.js route file (e.g., api/ai.js)
 
 import { embedQuery, loadEmbedder } from './utils/embedding.js'; // Adjust path as needed
