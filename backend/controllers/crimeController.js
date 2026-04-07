@@ -1,4 +1,4 @@
-import axios from "axios";
+import crimeData from "../crimeData.json" assert { type: "json" };
 
 const cityToState = {
   "mumbai": "Maharashtra",
@@ -22,47 +22,30 @@ export const getCrimeData = async (req, res) => {
       return res.status(400).json({ message: "City not supported" });
     }
 
-    const response = await axios.get(
-      "https://api.data.gov.in/resource/15150682-a9ed-475d-b0e3-67b292e90a22",
-      {
-        params: {
-          "api-key": process.env.DATA_GOV_API_KEY,
-          format: "json",
-          limit: 1000
-        }
-      }
-    );
+    const records = crimeData.records;
 
-    const records = response.data.records;
-
-    // 🔥 DEBUG FIRST RECORD
-    console.log("SAMPLE RECORD:", records[0]);
-
-    // ✅ Find state record (no year filtering yet)
     const stateRecord = records.find(
-      item =>
-        (item["state/ut"] || item.state_ut)?.toLowerCase() === state.toLowerCase()
+      (item) => item[0].toLowerCase() === state.toLowerCase()
     );
 
     if (!stateRecord) {
       return res.status(404).json({ message: "No data found" });
     }
 
-    // ✅ IMPORTANT: Adjust based on actual keys
     const cases = {
-      "2020": stateRecord["2020"] || stateRecord.year_2020 || "N/A",
-      "2021": stateRecord["2021"] || stateRecord.year_2021 || "N/A",
-      "2022": stateRecord["2022"] || stateRecord.year_2022 || "N/A"
+      "2020": stateRecord[1],
+      "2021": stateRecord[2],
+      "2022": stateRecord[3]
     };
-console.log(records[0]);
+
     return res.json({
-      state,
       city,
+      state,
       cases
     });
 
   } catch (error) {
-    console.error("API ERROR:", error.message);
-    return res.status(500).json({ message: "API failed" });
+    console.error("ERROR:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
