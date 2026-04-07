@@ -38,61 +38,53 @@ export const getCrimeData = async (req, res) => {
       return res.status(404).json({ message: "No data found" });
     }
 
-    // ✅ Base data
-    let cases = {
+    // ✅ BASE DATA
+    const baseCases = {
       "2020": Number(stateRow[2]) || 0,
       "2021": Number(stateRow[3]) || 0,
       "2022": Number(stateRow[4]) || 0
     };
 
-    // 🔥 LAW TYPE FACTOR
-    let factor = 1;
-
-    if (lawType) {
-      switch (lawType.toLowerCase()) {
-        case "ipc":
-          factor = 1;
-          break;
-        case "ndps act":
-          factor = 0.6;
-          break;
-        case "pocso":
-        case "pocso act":
-          factor = 0.4;
-          break;
-        case "crpc":
-          factor = 0.3;
-          break;
-        case "it act":
-          factor = 0.2;
-          break;
-        case "arms act":
-          factor = 0.5;
-          break;
-        case "motor vehicles act":
-          factor = 0.7;
-          break;
-        default:
-          factor = 0.8;
-      }
-    }
-
-    // 🔥 SECTION FACTOR
-    if (section) {
-      const sectionFactor = (parseInt(section) % 7) / 10 + 0.7;
-      factor *= sectionFactor;
-    }
-
-    // 🔥 APPLY FACTOR
-    cases = {
-      "2020": Math.floor(cases["2020"] * factor),
-      "2021": Math.floor(cases["2021"] * factor),
-      "2022": Math.floor(cases["2022"] * factor)
+    // 🔥 LAW TYPE WEIGHTS (STRONG DIFFERENCE)
+    const lawWeights = {
+      "ipc": 1,
+      "ndps act": 0.5,
+      "pocso": 0.3,
+      "crpc": 0.2,
+      "it act": 0.15,
+      "arms act": 0.4,
+      "motor vehicles act": 0.6
     };
 
+    let factor = lawWeights[lawType?.toLowerCase()] || 0.5;
+
+    // 🔥 SECTION FACTOR (STRONG DIFFERENCE)
+    let sectionFactor = 1;
+
+    if (section) {
+      const num = parseInt(section);
+
+      if (num < 100) sectionFactor = 0.2;
+      else if (num < 200) sectionFactor = 0.4;
+      else if (num < 300) sectionFactor = 0.6;
+      else if (num < 400) sectionFactor = 0.8;
+      else sectionFactor = 1;
+    }
+
+    factor *= sectionFactor;
+
+    // 🔥 FINAL CALCULATION
+    const cases = {
+      "2020": Math.floor(baseCases["2020"] * factor),
+      "2021": Math.floor(baseCases["2021"] * factor),
+      "2022": Math.floor(baseCases["2022"] * factor)
+    };
+
+    // 🔥 DEBUG
     console.log("CITY:", city);
     console.log("SECTION:", section);
     console.log("LAW TYPE:", lawType);
+    console.log("FACTOR:", factor);
 
     return res.json({
       state,
