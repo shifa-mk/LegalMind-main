@@ -7,5 +7,5 @@ router.post("/crime-data", getCrimeData);
 router.get("/test", (req, res) => {
   res.send("Crime route working ✅");
 });
-
+console.log("Crime routes loaded ✅");
 export default router;
