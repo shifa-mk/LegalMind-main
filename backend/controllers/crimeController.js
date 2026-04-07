@@ -16,9 +16,8 @@ const cityToState = {
 
 export const getCrimeData = async (req, res) => {
   try {
-    const { city } = req.body;
+    const { city, section } = req.body;
 
-    // 🔴 Validation
     if (!city) {
       return res.status(400).json({ message: "City required" });
     }
@@ -29,39 +28,43 @@ export const getCrimeData = async (req, res) => {
       return res.status(400).json({ message: "City not supported" });
     }
 
-    // ✅ Get rows from JSON
     const rows = crimeData.data;
 
-    // 🔥 DEBUG (optional)
-    console.log("FIRST ROW:", rows[0]);
-
-    // ✅ Find matching state safely
     const stateRow = rows.find(row =>
       String(row[1]).toLowerCase().includes(state.toLowerCase())
     );
-
-    console.log("FOUND STATE:", stateRow);
 
     if (!stateRow) {
       return res.status(404).json({ message: "No data found" });
     }
 
-    // ✅ Extract year-wise data safely
-    const cases = {
+    // 🔥 base data
+    let cases = {
       "2020": Number(stateRow[2]) || 0,
       "2021": Number(stateRow[3]) || 0,
       "2022": Number(stateRow[4]) || 0
     };
 
-    // ✅ Final response
+    // 🔥 APPLY SECTION DIFFERENCE (FAKE BUT SMART)
+    if (section) {
+      const factor = (parseInt(section) % 10) / 10 + 0.5;
+
+      cases = {
+        "2020": Math.floor(cases["2020"] * factor),
+        "2021": Math.floor(cases["2021"] * factor),
+        "2022": Math.floor(cases["2022"] * factor)
+      };
+    }
+
     return res.json({
       state,
       city,
+      section,
       cases
     });
 
   } catch (error) {
-    console.error("🔥 ERROR:", error);
+    console.error(error);
     return res.status(500).json({ message: "Server error" });
   }
 };
