@@ -7,13 +7,14 @@ const SectionDetails = () => {
 
   const [crimeData, setCrimeData] = useState(null);
   const [selectedLawType, setSelectedLawType] = useState("IPC");
-  const [sections, setSections] = useState([]); // 🔥 STORE ALL SECTIONS
+  const [sections, setSections] = useState([]);
+  const [city, setCity] = useState("Mumbai"); // dynamic GPS later
 
-  // ✅ Fetch all sections once
+  // ✅ Fetch sections
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        const res = await api.get("/api/sections"); // adjust if route different
+        const res = await api.get("/api/sections");
         setSections(res.data);
       } catch (err) {
         console.error("Error fetching sections:", err);
@@ -23,12 +24,42 @@ const SectionDetails = () => {
     fetchSections();
   }, []);
 
+  // ✅ Get city from GPS (optional but dynamic)
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+
+          const geo = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+
+          const data = await geo.json();
+
+          const detectedCity =
+            data.address.city ||
+            data.address.town ||
+            data.address.village;
+
+          if (detectedCity) {
+            setCity(detectedCity);
+          }
+
+          console.log("📍 DETECTED CITY:", detectedCity);
+        } catch (err) {
+          console.log("GPS error:", err);
+        }
+      },
+      () => {
+        console.log("GPS permission denied");
+      }
+    );
+  }, []);
+
   // 🔥 MAIN FETCH FUNCTION
   const fetchCrime = async () => {
     try {
-      const city = "Mumbai";
-
-      // ✅ FIND CURRENT SECTION USING ID
       const currentSection = sections.find((s) => s._id === id);
 
       if (!currentSection) {
@@ -36,29 +67,31 @@ const SectionDetails = () => {
         return;
       }
 
-      console.log("✅ SECTION NUMBER:", currentSection.sectionNumber);
-
-      const res = await api.post("/api/crime/crime-data", {
+      const payload = {
         city,
-        section: currentSection.sectionNumber, // ✅ FIXED HERE
-        lawType: selectedLawType
-      });
+        section: currentSection.sectionNumber, // ✅ IMPORTANT FIX
+        lawType: selectedLawType               // ✅ IMPORTANT FIX
+      };
 
-      console.log("🔥 API RESPONSE:", res.data);
+      console.log("🚀 FINAL PAYLOAD:", payload);
+
+      const res = await api.post("/api/crime/crime-data", payload);
+
+      console.log("✅ RESPONSE:", res.data);
 
       setCrimeData(res.data);
     } catch (err) {
-      console.error("Crime fetch error:", err);
+      console.error("❌ ERROR:", err);
       setCrimeData(null);
     }
   };
 
-  // 🔥 RUN WHEN ID / LAWTYPE / SECTIONS CHANGE
+  // ✅ Trigger when everything ready
   useEffect(() => {
-    if (sections.length > 0) {
+    if (sections.length > 0 && city) {
       fetchCrime();
     }
-  }, [id, selectedLawType, sections]);
+  }, [id, selectedLawType, sections, city]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -68,7 +101,7 @@ const SectionDetails = () => {
         <select
           value={selectedLawType}
           onChange={(e) => {
-            console.log("SELECTED LAW:", e.target.value);
+            console.log("LAW SELECTED:", e.target.value);
             setSelectedLawType(e.target.value);
           }}
         >
@@ -82,14 +115,14 @@ const SectionDetails = () => {
         </select>
       </div>
 
-      {/* 📊 CRIME DATA */}
+      {/* 📊 DATA */}
       {crimeData && (
         <div
           style={{
             background: "#f5f5dc",
             padding: "15px",
             borderRadius: "10px",
-            width: "300px"
+            width: "320px"
           }}
         >
           <h3>
