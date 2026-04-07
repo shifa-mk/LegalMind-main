@@ -78,4 +78,4 @@ export const getCrimeData = async (req, res) => {
     console.error("API ERROR:", error.message);
     res.status(500).json({ message: "API failed" });
   }
-};
+};*/
