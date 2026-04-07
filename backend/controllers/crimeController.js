@@ -1,4 +1,8 @@
-const crimeData = require("../crimeData.json");
+import fs from "fs";
+
+const crimeData = JSON.parse(
+  fs.readFileSync(new URL("../crimeData.json", import.meta.url))
+);
 
 const cityToState = {
   "mumbai": "Maharashtra",
