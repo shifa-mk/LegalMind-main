@@ -134,6 +134,51 @@ return (
         <span className="font-semibold">Punishment:</span> {section.punishment}
       </p>
     )}
+      {/* Investigation Steps */}
+{section.investigationSteps?.length > 0 && (
+  <div className="mb-3">
+    <h3 className="font-semibold">Investigation Steps:</h3>
+    <ul className="list-disc list-inside">
+      {section.investigationSteps.map((step, i) => (
+        <li key={i}>{step}</li>
+      ))}
+    </ul>
+  </div>
+)}
+
+{/* Required Documents */}
+{section.requiredDocuments?.length > 0 && (
+  <div className="mb-3">
+    <h3 className="font-semibold">Required Documents:</h3>
+    <ul className="list-disc list-inside">
+      {section.requiredDocuments.map((doc, i) => (
+        <li key={i}>{doc}</li>
+      ))}
+    </ul>
+  </div>
+)}
+
+{/* Related Sections */}
+{section.relatedSections?.length > 0 && (
+  <div className="mb-3">
+    <h3 className="font-semibold">Related Sections:</h3>
+    <p>{section.relatedSections.join(", ")}</p>
+  </div>
+)}
+
+{/* Important Cases */}
+{section.importantCases?.length > 0 && (
+  <div className="mt-3">
+    <h3 className="font-semibold">Important Cases:</h3>
+    {section.importantCases.map((c, i) => (
+      <div key={i} className="p-3 border rounded bg-gray-50 mt-2">
+        <p className="font-semibold">{c.caseName}</p>
+        <p className="text-sm text-gray-600">{c.citation}</p>
+        <p>{c.summary}</p>
+      </div>
+    ))}
+  </div>
+)}
 
     {/* 📊 CRIME DATA */}
     {crimeData && (
