@@ -37,7 +37,11 @@ if (id) fetchDetails();
 useEffect(() => {
 const fetchCrime = async (city) => {
   try {
-    const res = await api.post("/api/crime/crime-data", { city });
+    const res = await api.post("/api/crime/crime-data", {
+  city,
+  section: id,              // section number (302, 53 etc)
+  lawType: selectedLawType  // dropdown value
+});
     setCrimeData(res.data);
 
   } catch (err) {
