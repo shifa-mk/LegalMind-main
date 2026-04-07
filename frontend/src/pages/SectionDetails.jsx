@@ -165,7 +165,9 @@ return (
     <p>{section.relatedSections.join(", ")}</p>
   </div>
 )}
-
+{section.referenceLink && (
+  <a href={section.referenceLink}>...</a>
+)}
 {/* Important Cases */}
 {section.importantCases?.length > 0 && (
   <div className="mt-3">
