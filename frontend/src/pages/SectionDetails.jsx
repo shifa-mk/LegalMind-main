@@ -35,21 +35,21 @@ const SectionDetails = () => {
   return (
     <div style={{ padding: "20px" }}>
 
-      {/* 🔽 DROPDOWN */}
-      <div style={{ marginBottom: "20px" }}>
-        <select
-          value={selectedLawType}
-          onChange={(e) => setSelectedLawType(e.target.value)}
-        >
-          <option>IPC</option>
-          <option>NDPS Act</option>
-          <option>POCSO</option>
-          <option>CrPC</option>
-          <option>IT Act</option>
-          <option>Arms Act</option>
-          <option>Motor Vehicles Act</option>
-        </select>
-      </div>
+ <select
+  value={selectedLawType}
+  onChange={(e) => {
+    console.log("SELECTED:", e.target.value); // 🔥 debug
+    setSelectedLawType(e.target.value);
+  }}
+>
+  <option value="IPC">IPC</option>
+  <option value="NDPS Act">NDPS Act</option>
+  <option value="POCSO">POCSO</option>
+  <option value="CrPC">CrPC</option>
+  <option value="IT Act">IT Act</option>
+  <option value="Arms Act">Arms Act</option>
+  <option value="Motor Vehicles Act">Motor Vehicles Act</option>
+</select>
 
       {/* 📊 CRIME DATA UI */}
       {crimeData && (
