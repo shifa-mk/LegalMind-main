@@ -1,4 +1,4 @@
-import crimeData from "../crimeData.json" assert { type: "json" };
+const crimeData = require("../crimeData.json");
 
 const cityToState = {
   "mumbai": "Maharashtra",
