@@ -35,6 +35,8 @@ export default function SectionDetails() {
         // 4. Map Section Number to CSV Category (e.g., "302" -> "MURDER")
         const sectionNum = String(sData.sectionNumber);
         const csvCategory = sectionToCrimeMap[sectionNum];
+// This ensures "Fraud" from your map matches "FRAUD" in the CSV
+        const stats = cityStats[csvCategory?.toUpperCase()];
 
         console.log(`Matching: City [${dataCity}] | Category [${csvCategory}]`);
 
