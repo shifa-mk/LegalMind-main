@@ -84,7 +84,20 @@ export default function SectionDetails() {
               <p className="text-gray-800 font-medium">{section.punishment}</p>
             </div>
           </div>
-
+{/* ADD THE REFERENCE LINK HERE */}
+  {section.referenceLink && (
+    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+      <p className="text-xs font-bold text-blue-700 uppercase mb-1">Legal Source</p>
+      <a 
+        href={section.referenceLink} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="text-blue-600 underline text-sm break-all"
+      >
+        {section.referenceLink}
+      </a>
+    </div>
+  )}
           <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg border border-slate-700">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-400">
               📊 Regional Trends: Mumbai
