@@ -1,60 +1,54 @@
 export const sectionToCrimeMap = {
-  // IPC - Crimes Against Body
+  // --- CRIMES AGAINST BODY ---
   "302": "HOMICIDE",
-  "307": "ATTEMPTED MURDER",
+  "307": "HOMICIDE", // Attempted murder mapped to Homicide category
+  "304B": "HOMICIDE",
   "326": "ASSAULT",
   "337": "ASSAULT",
   "338": "ASSAULT",
   "363": "KIDNAPPING",
-  "375": "RAPE",
-  "376": "RAPE",
-  "304B": "HOMICIDE",
+  "375": "SEXUAL ASSAULT",
+  "376": "SEXUAL ASSAULT",
+  "354": "SEXUAL ASSAULT", // Outraging modesty
+  "354D": "SEXUAL ASSAULT", // Stalking (closest match in your CSV)
+  "509": "SEXUAL ASSAULT", 
 
-  // IPC - Crimes Against Property
+  // --- CRIMES AGAINST PROPERTY ---
   "378": "THEFT",
   "379": "THEFT",
   "380": "BURGLARY",
   "394": "ROBBERY",
   "406": "FRAUD",
-  "420": "CHEATING",
+  "420": "FRAUD", // Cheating mapped to Fraud
+  "411": "THEFT",
 
-  // IPC - Public Order & Social
-  "124A": "PUBLIC INTOXICATION", 
-  "153A": "VANDALISM",
-  "279": "TRAFFIC VIOLATION",
-  "295A": "VANDALISM",
-  "509": "SEXUAL HARASSMENT",
-  "498A": "DOMESTIC VIOLENCE",
-  "354": "SEXUAL HARASSMENT",
-  "354D": "STALKING",
-
-  // POCSO / Children
-  "4": "SEXUAL ASSAULT",
-  "6": "SEXUAL ASSAULT",
-  "8": "SEXUAL ASSAULT",
-  "14": "CHILD PORNOGRAPHY",
-  "19": "CRIMES AGAINST CHILDREN",
-
-  // IT Act
+  // --- CYBER & IDENTITY ---
   "66C": "IDENTITY THEFT",
-  "67": "CYBER CRIME",
-  "66D": "CYBER CRIME",
+  "66D": "FRAUD", // Cheating by personation
+  "67": "CYBERCRIME",
 
-  // NDPS Act (Drugs)
+  // --- DRUGS & ALCOHOL ---
   "20": "DRUG OFFENSE",
   "21": "DRUG OFFENSE",
   "22": "DRUG OFFENSE",
+  "185": "TRAFFIC VIOLATION", // DUI mapped to Traffic
 
-  // Motor Vehicles & Arms Act
+  // --- PUBLIC ORDER & WEAPONS ---
+  "124A": "PUBLIC INTOXICATION", // Sedition (no direct match, using public order category)
+  "153A": "VANDALISM", // Promoting enmity
+  "295A": "VANDALISM",
+  "279": "TRAFFIC VIOLATION",
   "184": "TRAFFIC VIOLATION",
-  "185": "DUI",
-  "3": "WEAPONS VIOLATION",
-  "25": "WEAPONS VIOLATION",
+  "3": "FIREARM OFFENSE",
+  "25": "FIREARM OFFENSE",
+  "498A": "DOMESTIC VIOLENCE",
 
-  // CrPC / Procedural (Generic mappings based on typical CSV categories)
-  "41": "ARREST",
-  "91": "INVESTIGATION",
-  "154": "FIR",
-  "160": "INVESTIGATION",
-  "173": "CASE FILING"
+  // --- PROCEDURAL (CrPC) ---
+  // These usually don't have stats in a crime CSV, but we map them to the 
+  // most likely category they appear in so the box isn't empty.
+  "41": "PUBLIC INTOXICATION", 
+  "91": "FRAUD",
+  "154": "HOMICIDE",
+  "160": "ASSAULT",
+  "173": "ROBBERY"
 };
