@@ -1,4 +1,5 @@
 // src/utils/crimeMapping.js
+import { sectionToCrimeMap } from "../utils/crimeMapping";
 export const sectionToCrimeMap = {
   // Homicide / Murder
   "302": "HOMICIDE", "307": "HOMICIDE", "304B": "HOMICIDE",

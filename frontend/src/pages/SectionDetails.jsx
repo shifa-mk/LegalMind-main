@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/axios";
@@ -190,3 +191,4 @@ export default function SectionDetails() {
     </div>
   );
 }
+

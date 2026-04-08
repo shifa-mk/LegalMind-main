@@ -2,38 +2,45 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 
-exports.getAggregatedStats = async (req, res) => {
+let cachedStats = null; // Memory cache
+
+const loadCrimeData = () => {
+  return new Promise((resolve, reject) => {
     const stats = {};
-    // Construct the absolute path to the CSV file
-    const csvFilePath = path.join(__dirname, '../data/crime_dataset_india.csv');
+    const csvPath = path.join(__dirname, '../data/crime_dataset_india.csv');
 
-    if (!fs.existsSync(csvFilePath)) {
-        return res.status(404).json({ message: "CSV file not found in data folder" });
-    }
+    fs.createReadStream(csvPath)
+      .pipe(csv())
+      .on('data', (row) => {
+        const city = row.City?.trim();
+        const crime = row['Crime Description']?.trim();
+        const isClosed = row['Case Closed']?.trim().toLowerCase() === 'yes';
 
-    fs.createReadStream(csvFilePath)
-        .pipe(csv())
-        .on('data', (row) => {
-            const city = row.City?.trim();
-            const crime = row['Crime Description']?.trim();
-            const solved = row['Case Closed']?.trim().toLowerCase() === 'yes';
+        if (city && crime) {
+          if (!stats[city]) stats[city] = {};
+          if (!stats[city][crime]) stats[city][crime] = { solved: 0, unsolved: 0, total: 0 };
 
-            if (city && crime) {
-                if (!stats[city]) stats[city] = {};
-                if (!stats[city][crime]) stats[city][crime] = { solved: 0, unsolved: 0, total: 0 };
+          stats[city][crime].total++;
+          isClosed ? stats[city][crime].solved++ : stats[city][crime].unsolved++;
+        }
+      })
+      .on('end', () => {
+        cachedStats = stats;
+        console.log("✅ Crime CSV indexed and cached.");
+        resolve(stats);
+      })
+      .on('error', reject);
+  });
+};
 
-                stats[city][crime].total++;
-                if (solved) {
-                    stats[city][crime].solved++;
-                } else {
-                    stats[city][crime].unsolved++;
-                }
-            }
-        })
-        .on('end', () => {
-            res.json({ success: true, data: stats });
-        })
-        .on('error', (err) => {
-            res.status(500).json({ success: false, error: err.message });
-        });
+// Initial load on server start
+loadCrimeData();
+
+exports.getAggregatedStats = async (req, res) => {
+  if (cachedStats) {
+    return res.json({ success: true, data: cachedStats });
+  }
+  // Fallback if cache isn't ready
+  const data = await loadCrimeData();
+  res.json({ success: true, data });
 };
