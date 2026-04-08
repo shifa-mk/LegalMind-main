@@ -99,6 +99,12 @@ export default function SectionDetails() {
                   <span className="text-slate-400 text-sm">Resolved Cases</span>
                   <span className="font-mono text-2xl text-emerald-400 font-bold">{localStats.solved}</span>
                 </div>
+                <div>
+      <p className="text-[10px] uppercase font-bold text-red-500 tracking-tighter">Unsolved</p>
+      <p className="text-lg font-bold text-red-600">
+        {(stats.total - stats.solved) < 0 ? 0 : stats.total - stats.solved}
+      </p>
+    </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 italic text-sm">
