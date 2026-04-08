@@ -53,7 +53,7 @@ export default function SectionDetails() {
   } finally {
     setLoading(false);
   }
-};
+}
     };
 
     if (id) fetchData();
