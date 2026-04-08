@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/axios";
@@ -15,32 +14,41 @@ export default function SectionDetails() {
   const [loading, setLoading] = useState(true);
   const [localStats, setLocalStats] = useState(null);
 
-  // Get location from navigation state (passed from Search/AskAI page)
-  const userLocation = locationState.state?.location || "Unknown";
+  // Default to "Mumbai" or "Unknown" if locationState is empty
+  const userLocation = locationState.state?.location || "Mumbai";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         
-        // 1. Fetch the Legal Section from MongoDB
+        // 1. Fetch Legal Section
         const sectionRes = await api.get(`/api/sections/${id}`);
         const sectionData = sectionRes.data;
         setSection(sectionData);
 
-        // 2. Fetch the Aggregated Stats from your Node.js CSV Logic
-        // We fetch all stats and filter them here to keep the API simple
+        // 2. Fetch Aggregated Stats
         const statsRes = await api.get("/api/crime/stats-by-section");
-        const allStats = statsRes.data.data;
-
-        // 3. Map Section Number -> CSV Category -> City Stats
-        const csvCategory = sectionToCrimeMap[sectionData.sectionNumber];
         
-        if (allStats[userLocation] && allStats[userLocation][csvCategory]) {
-          setLocalStats(allStats[userLocation][csvCategory]);
+        // Handle axios response structure (api.get usually returns data directly)
+        const allStats = statsRes.data?.data || statsRes.data; 
+
+        // 3. Map Section -> CSV Category
+        const sectionNum = String(sectionData.sectionNumber);
+        const csvCategory = sectionToCrimeMap[sectionNum];
+
+        console.log(`Checking stats for: ${userLocation} | Category: ${csvCategory}`);
+
+        if (allStats && allStats[userLocation] && csvCategory) {
+          const match = allStats[userLocation][csvCategory];
+          if (match) {
+            setLocalStats(match);
+          } else {
+            console.warn(`Category "${csvCategory}" not found for city ${userLocation}`);
+          }
         }
       } catch (err) {
-        console.error("Error fetching section details or stats:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
@@ -63,7 +71,6 @@ export default function SectionDetails() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto pb-20">
-      {/* Navigation Header */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={() => navigate(-1)}
@@ -78,7 +85,6 @@ export default function SectionDetails() {
         </div>
       </div>
 
-      {/* Main Legal Content Card */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-100 bg-slate-50/50">
           <div className="flex justify-between items-start mb-2">
@@ -95,7 +101,6 @@ export default function SectionDetails() {
         </div>
 
         <div className="p-8 space-y-8">
-          {/* 📊 Local Crime Analytics Section */}
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
               <BarChart3 size={16} /> Regional Incident Data
@@ -125,13 +130,12 @@ export default function SectionDetails() {
             ) : (
               <div className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center">
                 <p className="text-sm text-slate-500 italic">
-                  No historical records found for "{sectionToCrimeMap[section.sectionNumber] || 'this category'}" in {userLocation}.
+                  No records found for "{sectionToCrimeMap[section.sectionNumber] || 'this section'}" in {userLocation}.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Legal Text Sections */}
           <div className="prose prose-slate max-w-none">
             <section>
               <h3 className="text-lg font-bold text-slate-800 mb-2">Legal Definition</h3>
@@ -173,22 +177,8 @@ export default function SectionDetails() {
               </section>
             )}
           </div>
-
-          {section.referenceLink && (
-            <div className="pt-6 border-t border-slate-100 text-center">
-              <a
-                href={section.referenceLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-blue-600 font-bold hover:bg-blue-50 px-6 py-3 rounded-full transition-all"
-              >
-                📘 Open Official Legal Gazette
-              </a>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 }
-
