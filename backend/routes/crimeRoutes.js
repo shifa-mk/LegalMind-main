@@ -1,8 +1,7 @@
-import express from "express";
-import { getCrimeData } from "../controllers/crimeController.js";
-
+const express = require('express');
 const router = express.Router();
+const { getCrimeStats } = require('../controllers/crime.controller');
 
-router.post("/crime-data", getCrimeData);
+router.get('/stats', getCrimeStats);
 
-export default router;
+module.exports = router;
