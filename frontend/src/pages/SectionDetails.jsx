@@ -11,38 +11,63 @@ export default function SectionDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const sectionRes = await api.get(`/api/sections/${id}`);
-        const sData = sectionRes.data;
-        setSection(sData);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
 
-        const statsRes = await api.get("/api/crime/stats-by-section");
-        const allStats = statsRes.data?.data || statsRes.data || {};
+      // 1. Fetch Legal Section
+      const sectionRes = await api.get(`/api/sections/${id}`);
+      const sData = sectionRes.data;
+      setSection(sData);
 
-        const rawLocation = locationState.state?.location || "Mumbai";
-        const cleanCity = rawLocation.split(",")[0].trim();
-        const dataCity = cleanCity.toLowerCase().includes("mumbai") ? "Mumbai" : cleanCity;
-
-        const sectionNum = String(sData.sectionNumber);
-        const csvCategory = sectionToCrimeMap[sectionNum];
-
-        if (allStats[dataCity] && csvCategory) {
-          const cityData = allStats[dataCity];
-          const matchedKey = Object.keys(cityData).find(
-            key => key.toUpperCase().trim() === csvCategory.toUpperCase().trim()
-          );
-          if (matchedKey) setLocalStats(cityData[matchedKey]);
+      // 2. Resolve Location (Fix starts here)
+      let currentCity = "Mumbai"; // Default
+      
+      if (locationState.state?.location) {
+        // If we came from AskAI, use that location
+        currentCity = locationState.state.location.split(",")[0].trim();
+      } else {
+        // If locationState is missing (e.g. page refresh), try to get GPS again
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          const { latitude: lat, longitude: lon } = pos.coords;
+          const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          const geoData = await geo.json();
+          currentCity = geoData.address.city || geoData.address.town || "Mumbai";
+        } catch (geoErr) {
+          console.log("GPS fallback failed, using default");
         }
-      } catch (err) {
-        console.error("SectionDetails Error:", err);
-      } finally {
-        setLoading(false);
       }
-    };
-    if (id) fetchData();
-  }, [id, locationState]);
+
+      // 3. Fetch Crime Stats
+      const statsRes = await api.get("/api/crime/stats-by-section");
+      const allStats = statsRes.data?.data || statsRes.data || {};
+
+      // Normalize city name for CSV matching
+      const dataCity = currentCity.toLowerCase().includes("mumbai") ? "Mumbai" : currentCity;
+
+      // 4. Data Matching
+      const sectionNum = String(sData.sectionNumber);
+      const csvCategory = sectionToCrimeMap[sectionNum];
+
+      if (allStats[dataCity] && csvCategory) {
+        const cityData = allStats[dataCity];
+        const matchedKey = Object.keys(cityData).find(
+          key => key.toUpperCase().trim() === csvCategory.toUpperCase().trim()
+        );
+        if (matchedKey) setLocalStats(cityData[matchedKey]);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (id) fetchData();
+}, [id, locationState]);
 
   if (loading) return <p className="p-10 text-center animate-pulse text-slate-500 font-medium">Analyzing Legal Database...</p>;
   if (!section) return <p className="p-10 text-center text-red-500 font-bold">Section Not Found</p>;
