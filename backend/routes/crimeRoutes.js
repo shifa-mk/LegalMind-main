@@ -13,4 +13,4 @@ router.get("/test", (req, res) => {
 
 console.log("Crime routes loaded ✅");
 
-module.exports = router;
+export default router;
