@@ -18,40 +18,35 @@ export default function SectionDetails() {
   const userLocation = locationState.state?.location || "Mumbai";
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        console.log("Available Cities in Data:", Object.keys(allStats));
-        // 1. Fetch Legal Section
-        const sectionRes = await api.get(`/api/sections/${id}`);
-        const sectionData = sectionRes.data;
-        setSection(sectionData);
+   const fetchData = async () => {
+  try {
+    setLoading(true);
+    const sectionRes = await api.get(`/api/sections/${id}`);
+    setSection(sectionRes.data);
 
-        // 2. Fetch Aggregated Stats
-        const statsRes = await api.get("/api/crime/stats-by-section");
-        
-        // Handle axios response structure (api.get usually returns data directly)
-        const allStats = statsRes.data?.data || statsRes.data; 
+    const statsRes = await api.get("/api/crime/stats-by-section");
+    
+    // Safety check: Use || {} so it never becomes null/undefined
+    const allStats = statsRes.data?.data || statsRes.data || {}; 
+    
+    const rawLocation = locationState.state?.location || "Mumbai";
+    const cleanCity = rawLocation.split(',')[0].trim();
+    const sectionNum = String(sectionRes.data.sectionNumber);
+    const csvCategory = sectionToCrimeMap[sectionNum];
 
-        // 3. Map Section -> CSV Category
-        const sectionNum = String(sectionData.sectionNumber);
-        const csvCategory = sectionToCrimeMap[sectionNum];
-
-        console.log(`Checking stats for: ${userLocation} | Category: ${csvCategory}`);
-
-        if (allStats && allStats[userLocation] && csvCategory) {
-          const match = allStats[userLocation][csvCategory];
-          if (match) {
-            setLocalStats(match);
-          } else {
-            console.warn(`Category "${csvCategory}" not found for city ${userLocation}`);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
-      }
+    // Check if the city exists in the object before accessing categories
+    if (allStats[cleanCity] && allStats[cleanCity][csvCategory]) {
+      setLocalStats(allStats[cleanCity][csvCategory]);
+    } else {
+      console.warn(`No data for ${cleanCity} under ${csvCategory}`);
+      setLocalStats(null);
+    }
+  } catch (err) {
+    console.error("SectionDetails Fetch Error:", err);
+  } finally {
+    setLoading(false);
+  }
+}
     };
 
     if (id) fetchData();
