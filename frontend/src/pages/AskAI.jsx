@@ -136,7 +136,7 @@ export default function AskAI() {
         disabled={loading}
         className="bg-blue-600 text-white px-8 py-2 rounded font-bold hover:bg-blue-700 transition-all disabled:bg-gray-400"
       >
-        {loading ? "Analyzing Database..." : "Search Legal Database"}
+        {loading ? "Analyzing Database..." : "Search"}
       </button>
 
       {message && <div className="mt-4 p-4 bg-gray-100 border rounded text-slate-600">{message}</div>}
