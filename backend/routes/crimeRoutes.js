@@ -1,16 +1,13 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-// Ensure the function name matches your controller (getCrimeStats or getCrimeData)
-const { getCrimeStats } = require('../controllers/crime.controller');
 
-// GET route for the frontend to fetch the CSV statistics
+// 💡 Important: Use the .js extension in the import path
+import { getCrimeStats } from '../controllers/crime.controller.js';
+
 router.get('/stats-by-section', getCrimeStats);
 
-// Test route to verify the backend is working
 router.get("/test", (req, res) => {
   res.send("Crime route working ✅");
 });
-
-console.log("Crime routes loaded ✅");
 
 export default router;
