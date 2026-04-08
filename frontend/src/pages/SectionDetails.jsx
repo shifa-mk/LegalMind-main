@@ -21,7 +21,7 @@ export default function SectionDetails() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+        console.log("Available Cities in Data:", Object.keys(allStats));
         // 1. Fetch Legal Section
         const sectionRes = await api.get(`/api/sections/${id}`);
         const sectionData = sectionRes.data;
