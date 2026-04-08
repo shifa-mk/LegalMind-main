@@ -11,41 +11,48 @@ export default function SectionDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+  const fetchData = async () => {
+  try {
+    setLoading(true);
 
-        // 1. Fetch Legal Section
-        const sectionRes = await api.get(`/api/sections/${id}`);
-        const sData = sectionRes.data;
-        setSection(sData);
+    // 1. Fetch Legal Section
+    const sectionRes = await api.get(`/api/sections/${id}`);
+    const sData = sectionRes.data;
+    setSection(sData);
 
-        // 2. Fetch Stats
-        const statsRes = await api.get("/api/crime/stats-by-section");
-        const allStats = statsRes.data?.data || statsRes.data || {};
+    // 2. Fetch Stats
+    const statsRes = await api.get("/api/crime/stats-by-section");
+    const allStats = statsRes.data?.data || statsRes.data || {};
 
-        // 3. 📍 GPS Normalization Logic
-        // We show the "real" GPS on top, but look up "Mumbai" in the CSV
-        const rawLocation = locationState.state?.location || "Detecting...";
-        const cleanCity = rawLocation.split(",")[0].trim();
-        
-        // If GPS is Navi Mumbai, we look for "Mumbai" in the stats object
-        const dataCity = cleanCity.toLowerCase().includes("mumbai") ? "Mumbai" : cleanCity;
+    // 3. 📍 GPS Normalization Logic
+    const rawLocation = locationState.state?.location || "Mumbai";
+    const cleanCity = rawLocation.split(",")[0].trim();
+    
+    // Normalize: Treat Navi Mumbai, South Mumbai, etc., all as "Mumbai" for the CSV data
+    const dataCity = cleanCity.toLowerCase().includes("mumbai") ? "Mumbai" : cleanCity;
 
-        const sectionNum = String(sData.sectionNumber);
-        const csvCategory = sectionToCrimeMap[sectionNum];
+    // 4. Mapping & Matching
+    const sectionNum = String(sData.sectionNumber);
+    const csvCategory = sectionToCrimeMap[sectionNum];
 
-        // 4. Safe Object check
-        if (allStats && typeof allStats === 'object' && !Array.isArray(allStats)) {
-          if (allStats[dataCity] && allStats[dataCity][csvCategory]) {
-            setLocalStats(allStats[dataCity][csvCategory]);
-          }
-        }
-      } catch (err) {
-        console.error("SectionDetails Error:", err);
-      } finally {
-        setLoading(false);
+    console.log(`System Check: City [${dataCity}] | Section [${sectionNum}] | CSV Category [${csvCategory}]`);
+
+    // 5. Safe Object check and matching
+    if (allStats && typeof allStats === 'object' && !Array.isArray(allStats)) {
+      const cityStats = allStats[dataCity];
+      
+      if (cityStats && cityStats[csvCategory]) {
+        setLocalStats(cityStats[csvCategory]);
+      } else {
+        console.warn(`No stats match found for category: ${csvCategory} in ${dataCity}`);
       }
+    }
+  } catch (err) {
+    console.error("SectionDetails Error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
     };
 
     if (id) fetchData();
@@ -59,7 +66,7 @@ export default function SectionDetails() {
       {/* 📍 Top Location Header (Shows your REAL GPS) */}
       <div className="flex items-center gap-2 text-slate-500 text-sm bg-slate-100 p-3 rounded-lg w-fit">
         <span className="text-red-500">📍</span>
-        <span>Location Detected: <b className="text-slate-800">{locationState.state?.location || "Navi Mumbai, Maharashtra"}</b></span>
+        <span>Location Detected: <b className="text-slate-800">{locationState.state?.location || "unknown"}</b></span>
       </div>
 
       <div className="bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
