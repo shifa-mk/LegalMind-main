@@ -11,34 +11,43 @@ export default function SectionDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
+   const fetchData = async () => {
+  try {
+    setLoading(true);
+    
+    // 1. Fetch Legal Section Details
+    const sectionRes = await api.get(`/api/sections/${id}`);
+    const sectionData = sectionRes.data || {}; // Ensure it's not null
+    setSection(sectionData);
 
-        // 1. Fetch Legal Section Details
-        const sectionRes = await api.get(`/api/sections/${id}`);
-        setSection(sectionRes.data);
+    // 2. Fetch Crime Stats
+    const statsRes = await api.get("/api/crime/stats-by-section");
+    
+    // 🔥 THE FIX: Use multiple fallbacks so allStats is never null
+    const allStats = statsRes.data?.data || statsRes.data || {}; 
 
-        // 2. Fetch Crime Stats and match with GPS location
-        const statsRes = await api.get("/api/crime/stats-by-section");
-        const allStats = statsRes.data?.data || statsRes.data || {};
+    // 3. Location & Mapping Logic
+    const rawLocation = locationState.state?.location || "Mumbai";
+    const cleanCity = rawLocation.split(",")[0].trim();
+    const normalizedCity = cleanCity.includes("Mumbai") ? "Mumbai" : cleanCity;
 
-        // Get location from navigation state (passed from AskAI)
-        const rawLocation = locationState.state?.location || "Mumbai";
-        const cleanCity = rawLocation.split(",")[0].trim();
-        const normalizedCity = cleanCity.includes("Mumbai") ? "Mumbai" : cleanCity;
+    const sectionNum = String(sectionData.sectionNumber || "");
+    const csvCategory = sectionToCrimeMap[sectionNum];
 
-        const sectionNum = String(sectionRes.data.sectionNumber);
-        const csvCategory = sectionToCrimeMap[sectionNum];
-
-        if (allStats[normalizedCity] && allStats[normalizedCity][csvCategory]) {
-          setLocalStats(allStats[normalizedCity][csvCategory]);
-        }
-      } catch (err) {
-        console.error("Error fetching section details:", err);
-      } finally {
-        setLoading(false);
+    // 🔥 THE SECOND FIX: Check if allStats is a valid object before calling keys
+    if (allStats && typeof allStats === 'object' && Object.keys(allStats).length > 0) {
+      if (allStats[normalizedCity] && allStats[normalizedCity][csvCategory]) {
+        setLocalStats(allStats[normalizedCity][csvCategory]);
       }
+    }
+
+  } catch (err) {
+    // This matches your line 51 error log
+    console.error("SectionDetails.jsx:51 Error fetching data:", err);
+  } finally {
+    setLoading(false);
+  }
+}
     };
 
     if (id) {
