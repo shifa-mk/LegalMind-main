@@ -96,14 +96,14 @@ export default function AskAI() {
     <div className="p-6 max-w-4xl mx-auto pb-20">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">🔎 Ask Legal AI</h1>
 
-      {/* 📍 Location Display (Original Blue Box) */}
+      {/* 📍 Location Display */}
       {location && (
         <div className="mb-4 p-3 bg-blue-50 border rounded text-blue-700">
           📍 Current Location: <strong>{location}</strong>
         </div>
       )}
 
-      {/* 🎤 Speak + FIR Buttons (Original Colors) */}
+      {/* 🎤 Speak + FIR Buttons */}
       <div className="flex gap-3 mb-3">
         <button
           onClick={startListening}
@@ -137,12 +137,12 @@ export default function AskAI() {
         disabled={loading}
         className="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700 transition-colors"
       >
-        {loading ? "Analyzing..." : "Search Legal Database"}
+        {loading ? "Analyzing..." : "Search"}
       </button>
 
       {message && <div className="mt-4 p-4 bg-gray-100 border rounded">{message}</div>}
 
-      {/* Results (Original Card Style) */}
+      {/* Results (Full Section Display) */}
       {results.length > 0 && (
         <div className="mt-6 space-y-6">
           <h2 className="text-lg font-bold text-slate-700">Relevant Legal Sections:</h2>
@@ -168,9 +168,10 @@ export default function AskAI() {
                   )}
                 </div>
 
-                <p className="text-gray-700 line-clamp-3 mb-4">{sec.description}</p>
+                {/* Display FULL description without line-clamping */}
+                <p className="text-gray-700 mb-4 whitespace-pre-wrap">{sec.description}</p>
 
-                {/* Reference Link (Direct Display) */}
+                {/* Reference Link */}
                 {sec.referenceLink && (
                   <p className="mb-4 text-xs">
                     <b>Reference:</b>{" "}
@@ -180,9 +181,9 @@ export default function AskAI() {
                   </p>
                 )}
 
-                {/* 📊 Crime Data Preview (Original Flex Layout with Unsolved) */}
+                {/* Statistics Box */}
                 {stats && (
-                  <div className="mb-4 p-3 bg-slate-50 border rounded-lg flex justify-around text-center">
+                  <div className="mb-2 p-3 bg-slate-50 border rounded-lg flex justify-around text-center">
                     <div>
                       <p className="text-[10px] uppercase font-bold text-slate-400">Total in {cityOnly}</p>
                       <p className="font-bold text-slate-700">{stats.total}</p>
@@ -197,13 +198,7 @@ export default function AskAI() {
                     </div>
                   </div>
                 )}
-
-                <button
-                  onClick={() => navigate(`/section/${sec._id}`, { state: { location: cityOnly } })}
-                  className="w-full py-2 bg-slate-100 text-slate-700 rounded-lg font-bold hover:bg-blue-600 hover:text-white transition-colors"
-                >
-                  View Full Legal Details & Analytics
-                </button>
+                {/* Note: The 'View Full Details' button has been removed as requested */}
               </div>
             );
           })}
