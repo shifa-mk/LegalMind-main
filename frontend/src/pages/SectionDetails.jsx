@@ -11,17 +11,17 @@ export default function SectionDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // FIXED: Removed the extra outer curly braces that were wrapping this function
+    // The async function must be defined clearly inside the effect
     const fetchData = async () => {
       try {
         setLoading(true);
 
-        // 1. Fetch Legal Section
+        // 1. Fetch Legal Section Details
         const sectionRes = await api.get(`/api/sections/${id}`);
         const sData = sectionRes.data;
         setSection(sData);
 
-        // 2. Fetch Stats
+        // 2. Fetch Crime Statistics
         const statsRes = await api.get("/api/crime/stats-by-section");
         const allStats = statsRes.data?.data || statsRes.data || {};
 
@@ -29,23 +29,20 @@ export default function SectionDetails() {
         const rawLocation = locationState.state?.location || "Mumbai";
         const cleanCity = rawLocation.split(",")[0].trim();
         
-        // Normalize: Treat Navi Mumbai, South Mumbai, etc., all as "Mumbai" for the CSV data
+        // Maps Navi Mumbai or other suburbs to the primary "Mumbai" key in your CSV
         const dataCity = cleanCity.toLowerCase().includes("mumbai") ? "Mumbai" : cleanCity;
 
-        // 4. Mapping & Matching
+        // 4. Map Section Number to CSV Category (e.g., "302" -> "MURDER")
         const sectionNum = String(sData.sectionNumber);
         const csvCategory = sectionToCrimeMap[sectionNum];
 
-        console.log(`System Check: City [${dataCity}] | Section [${sectionNum}] | CSV Category [${csvCategory}]`);
+        console.log(`Matching: City [${dataCity}] | Category [${csvCategory}]`);
 
-        // 5. Safe Object check and matching
+        // 5. Extract Stats safely
         if (allStats && typeof allStats === 'object' && !Array.isArray(allStats)) {
           const cityStats = allStats[dataCity];
-          
           if (cityStats && cityStats[csvCategory]) {
             setLocalStats(cityStats[csvCategory]);
-          } else {
-            console.warn(`No stats match found for category: ${csvCategory} in ${dataCity}`);
           }
         }
       } catch (err) {
@@ -55,15 +52,17 @@ export default function SectionDetails() {
       }
     };
 
-    if (id) fetchData();
-  }, [id, locationState]);
+    if (id) {
+      fetchData();
+    }
+  }, [id, locationState]); // Properly closed dependency array
 
-  if (loading) return <p className="p-10 text-center animate-pulse text-slate-500 font-medium">Analyzing Legal Database...</p>;
+  if (loading) return <p className="p-10 text-center animate-pulse text-slate-500">Analyzing Legal Database...</p>;
   if (!section) return <p className="p-10 text-center text-red-500 font-bold">Section Not Found</p>;
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* 📍 Top Location Header (Shows your REAL GPS) */}
+      {/* 📍 Top Location Header */}
       <div className="flex items-center gap-2 text-slate-600 text-sm bg-white border border-slate-200 p-3 px-5 rounded-full w-fit shadow-sm">
         <span className="text-red-500 animate-bounce">📍</span>
         <span>Location Detected: <b className="text-slate-900">{locationState.state?.location || "Navi Mumbai, Maharashtra"}</b></span>
@@ -89,30 +88,28 @@ export default function SectionDetails() {
             </div>
           </div>
 
-          {/* 📊 Regional Data Popup (Maps GPS to Mumbai Data) */}
+          {/* 📊 Jurisdictional Stats Card */}
           <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-lg border border-slate-700">
             <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-400">
-              📊 Jurisdictional Insights: Mumbai
+              📊 Regional Trends: Mumbai
             </h3>
             {localStats ? (
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b border-slate-700 pb-2">
-                  <span className="text-slate-400 text-sm">Total Reported Cases</span>
+                  <span className="text-slate-400 text-sm">Total Incidents</span>
                   <span className="font-mono text-2xl font-bold">{localStats.total}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-slate-700 pb-2">
-                  <span className="text-slate-400 text-sm">Solved/Closed</span>
+                  <span className="text-slate-400 text-sm">Resolved Cases</span>
                   <span className="font-mono text-2xl text-emerald-400 font-bold">{localStats.solved}</span>
                 </div>
                 <p className="text-[10px] text-slate-500 italic mt-2">
-                  Historical data aggregated for the Mumbai Metropolitan Region.
+                  Data reflects aggregate historical trends for the Mumbai Metropolitan area.
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                 <p className="text-slate-500 italic text-sm">
-                   No historical records match this specific section in the Mumbai area.
-                 </p>
+              <div className="flex flex-col items-center justify-center py-10 text-center text-slate-500 italic text-sm">
+                No matching historical records for this category in the Mumbai database.
               </div>
             )}
           </div>
@@ -123,7 +120,7 @@ export default function SectionDetails() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div>
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-blue-600">📋</span> Police Investigation Protocol
+              <span className="text-blue-600">📋</span> Investigation Protocol
             </h4>
             <ul className="space-y-3">
               {section.investigationSteps?.map((step, i) => (
@@ -138,7 +135,7 @@ export default function SectionDetails() {
           </div>
           <div>
             <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="text-emerald-600">📂</span> Evidence Checklist
+              <span className="text-emerald-600">📂</span> Required Evidence
             </h4>
             <ul className="space-y-3">
               {section.requiredDocuments?.map((doc, i) => (
