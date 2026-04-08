@@ -18,35 +18,42 @@ export default function SectionDetails() {
   const userLocation = locationState.state?.location || "Mumbai";
 
   useEffect(() => {
-   const fetchData = async () => {
+ const fetchData = async () => {
   try {
     setLoading(true);
+    
+    // 1. Fetch Legal Section
     const sectionRes = await api.get(`/api/sections/${id}`);
-    setSection(sectionRes.data);
+    const sectionData = sectionRes.data;
+    setSection(sectionData);
 
+    // 2. Fetch Crime Stats
     const statsRes = await api.get("/api/crime/stats-by-section");
     
-    // Safety check: Use || {} so it never becomes null/undefined
+    // SAFETY CHECK: Ensure allStats is at least an empty object, never null
     const allStats = statsRes.data?.data || statsRes.data || {}; 
-    
+
+    // 3. Location Handling
     const rawLocation = locationState.state?.location || "Mumbai";
     const cleanCity = rawLocation.split(',')[0].trim();
-    const sectionNum = String(sectionRes.data.sectionNumber);
+    
+    // 4. Data Mapping
+    const sectionNum = String(sectionData.sectionNumber);
     const csvCategory = sectionToCrimeMap[sectionNum];
 
-    // Check if the city exists in the object before accessing categories
-    if (allStats[cleanCity] && allStats[cleanCity][csvCategory]) {
+    // SAFETY CHECK: Check if the city exists in the keys before looking for the category
+    if (Object.keys(allStats).length > 0 && allStats[cleanCity] && allStats[cleanCity][csvCategory]) {
       setLocalStats(allStats[cleanCity][csvCategory]);
     } else {
-      console.warn(`No data for ${cleanCity} under ${csvCategory}`);
+      console.warn(`Data mismatch: City: ${cleanCity}, Category: ${csvCategory}`);
       setLocalStats(null);
     }
   } catch (err) {
-    console.error("SectionDetails Fetch Error:", err);
+    console.error("SectionDetails.jsx:51 Error fetching data:", err);
   } finally {
     setLoading(false);
   }
-}
+};
     };
 
     if (id) fetchData();
