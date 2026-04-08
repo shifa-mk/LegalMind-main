@@ -142,15 +142,17 @@ export default function AskAI() {
       {message && <div className="mt-4 p-4 bg-gray-100 border rounded text-slate-600">{message}</div>}
 
       {/* 📜 Results List (Full Details) */}
-      <div className="mt-8 space-y-10">
-        {results.map((sec) => {
-          const categoryKey = sectionToCrimeMap[String(sec.sectionNumber)];
-          const cityData = allCrimeStats?.[cityOnly];
-          const matchedKey = cityData 
-            ? Object.keys(cityData).find(k => k.toUpperCase() === categoryKey?.toUpperCase()) 
-            : null;
-          const stats = matchedKey ? cityData[matchedKey] : null;
-
+      {results.map((sec) => {
+  const categoryKey = sectionToCrimeMap[String(sec.sectionNumber)];
+  
+  // FIX: Normalize the city name for matching
+  const lookupCity = cityOnly.toLowerCase().includes("mumbai") ? "Mumbai" : cityOnly;
+  
+  const cityData = allCrimeStats?.[lookupCity];
+  const matchedKey = cityData 
+    ? Object.keys(cityData).find(k => k.toUpperCase() === categoryKey?.toUpperCase()) 
+    : null;
+  const stats = matchedKey ? cityData[matchedKey] : null;
           return (
             <div key={sec._id} className="p-8 bg-white border border-slate-200 rounded-2xl shadow-lg">
               {/* Card Header */}
