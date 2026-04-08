@@ -51,7 +51,7 @@ export default function SectionDetails() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-2 text-slate-600 text-sm bg-white border border-slate-200 p-3 px-5 rounded-full w-fit shadow-sm">
         <span className="text-red-500">📍</span>
-        <span>Location Detected: <b className="text-slate-900">{locationState.state?.location || "Mumbai"}</b></span>
+        <span>Location Detected: <b className="text-slate-900">{locationState.state?.location || "unknown"}</b></span>
       </div>
 
       <div className="bg-white shadow-xl rounded-2xl p-8 border border-slate-100">
